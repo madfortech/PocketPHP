@@ -1,0 +1,29 @@
+{
+    "name": "pocketphp/pocketphp",
+    "description": "A simple PHP framework",
+    "type": "project",
+    "keywords": ["php", "framework", "mvc","pocketphp","pocketphp framework","pocketphpmvc","pocketphpmvc framework"],
+    "version": "1.0.0-dev",
+    "authors": [{
+        "name": "Himanshu Nishad",
+        "role": "Developer"
+    }],
+    "license": "MIT",
+
+    "require": {
+        "php": "^8.2"
+    },
+
+    "autoload": {
+        "psr-4": {
+            "PocketPHP\\Controller\\Core\\": "src/Controller/Core/",
+            "PocketPHP\\Controller\\": "src/Controller/",
+            "PocketPHP\\": "src/"
+        }
+    },
+    "scripts": {
+        "serve": "php -S localhost:8000 -t public"
+    },
+    
+    "minimum-stability": "dev"
+}
