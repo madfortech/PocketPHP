@@ -1,0 +1,24 @@
+{
+    "name": "pocketphp/skeleton",
+    "description": "A lightweight and powerful PHP framework",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "pocketphp/pocketphp": "^1.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    },
+    "scripts": {
+        "post-root-package-install": [
+            "@php -r \"file_exists('.env') || copy('.env.example', '.env');\""
+        ],
+        "post-create-project-cmd": [
+            "@php -r \"file_exists('public/index.php') || copy('public/index.php.dist', 'public/index.php');\""
+        ]
+    }
+}
