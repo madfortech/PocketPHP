@@ -1,10 +1,10 @@
-# PocketPHP - A Lightweight PHP Framework for Small-Scale Projects on Shared Hosting
+# PocketPHP - A Lightweight PHP Boilerplate for Small-Scale Projects on Shared Hosting
 
-# Note currently this framework is under development not for production use
+# Note currently this boilerplate is under development not for production use
 
-> **Note:** This is a proprietary PHP framework created and maintained by [MadForTech](https://github.com/madfortech). All rights reserved.
+> **Note:** This is a proprietary PHP boilerplate created and maintained by [MadForTech](https://github.com/madfortech). All rights reserved.
 
-PocketPHP is a lightweight, fast, and easy-to-use PHP framework designed specifically for small-scale projects on shared hosting. It helps you build web applications quickly and efficiently.
+PocketPHP is a lightweight, fast, and easy-to-use PHP boilerplate designed specifically for small-scale projects on shared hosting. It helps you build web applications quickly and efficiently.
 
 ## ✨ Key Features
 
@@ -25,6 +25,14 @@ PocketPHP is a lightweight, fast, and easy-to-use PHP framework designed specifi
 - Apache/Nginx Web Server
 
 ## 🚀 Installation
+
+You can create a new PocketPHP project using Composer:
+
+```bash
+currently not available
+composer create-project pocketphp/pocketphp your-project-name
+```
+you can clone the repository and install dependencies
 
 1. Clone the repository:
    ```bash
@@ -66,6 +74,7 @@ MAIL_DEBUG=true
 ## 🛠️ Setup Database
 
 1. Create a new MySQL database phpmyadmin
+2. Import pocketphp.sql file into your database
 
 ## 🚦 Running the Application
 
@@ -111,3 +120,8 @@ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLI
 ## 📄 Documentation
 
 For more detailed documentation, please visit [PocketPHP Docs](#) (Coming Soon)
+
+#Credits
+
+- phpmailer/phpmailer
+- vlucas/phpdotenv

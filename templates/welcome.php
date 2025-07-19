@@ -3,7 +3,7 @@
 <div class="welcome-container">
     <div class="welcome-content">
         <h1>Welcome to PocketPHP</h1>
-        <p class="lead">A simple and lightweight PHP framework</p>
+        <p class="lead">A simple and lightweight PHP boilerplate</p>
         
         <?php if (!isset($_SESSION['user_id'])): ?>
             <div class="auth-buttons">
