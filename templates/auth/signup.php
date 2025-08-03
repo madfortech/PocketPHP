@@ -1,4 +1,19 @@
-<?php include __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+use PocketSecurity\Security;
+
+// Generate CSRF token if not exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = Security::csrfGenerate();
+}
+
+include __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="container">
     <div class="message">
@@ -15,6 +30,8 @@
         <?php endif; ?>
         
         <form action="/auth/signup" method="POST">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <div>
                 <label for="name">Full Name</label>
                 <input type="text" name="name" id="name" required 

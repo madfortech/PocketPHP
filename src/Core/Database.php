@@ -3,6 +3,7 @@ namespace PocketPHP\Core;
 
 use PDO;
 use PDOException;
+use PocketErrorLog\ErrorLog;
 
 class Database {
     private static $instance = null;
@@ -23,7 +24,7 @@ class Database {
                 ]
             );
         } catch (PDOException $e) {
-            die("Database connection failed: " . $e->getMessage());
+            ErrorLog::log("Database connection failed: " . $e->getMessage(), 'ERROR', ['file' => __FILE__, 'line' => __LINE__]);
         }
     }
 

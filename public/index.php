@@ -1,12 +1,20 @@
 <?php
 require __DIR__.'/../vendor/autoload.php';
+// Set the log path to your project's storage directory
+use PocketErrorLog\ErrorLog;
+ErrorLog::setLogPath(__DIR__ . '/../storage/logs/app.log');
 
 use PocketPHP\Core\Router;
-
 // Load helper functions
 require __DIR__.'/../src/helpers.php';
 
-// Load environment variables (already loaded in helpers.php)
+// Load timezone configuration
+$timezoneConfig = require __DIR__.'/../config/timezone.php';
+date_default_timezone_set($timezoneConfig['timezone']);
+
+// Load environment variables
+$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
+$dotenv->load();
 
 // Enable error reporting
 ini_set('display_errors', 1);

@@ -2,8 +2,12 @@
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+$token = $_GET['token'] ?? '';
+if (empty($token) && isset($_SESSION['reset_token'])) {
+    $token = $_SESSION['reset_token'];
+}
+include __DIR__ . '/../layouts/header.php'; 
 
-require_once __DIR__ . '/../../vendor/autoload.php';
 use PocketSecurity\Security;
 
 // Generate CSRF token if not exists
@@ -11,13 +15,12 @@ if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = Security::csrfGenerate();
 }
 
-include __DIR__ . '/../layouts/header.php'; 
 ?>
 
-<div class="forgot-password-container">
-    <div class="forgot-password-box">
-        <h1>Forgot Password</h1>
-        <p>Enter your email address and we'll send you a link to reset your password.</p>
+<div class="reset-password-container">
+    <div class="reset-password-box">
+        <h1>Reset Your Password</h1>
+        <p>Please enter your new password below.</p>
         
         <?php if (isset($_SESSION['error'])): ?>
             <div class="alert error-message">
@@ -37,16 +40,22 @@ include __DIR__ . '/../layouts/header.php';
             </div>
         <?php endif; ?>
         
-        <form action="/auth/forgot-password" method="POST" class="forgot-password-form">
+        <form action="/auth/reset-password" method="POST" class="reset-password-form">
             <!-- CSRF Token -->
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-            <div>
-                <label for="email">Email Address</label>
-                <input type="email" name="email" id="email" required 
-                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+            <input type="hidden" name="token" value="<?php echo htmlspecialchars($token); ?>">
+            <div class="form-group">
+                <label for="password">New Password</label>
+                <input type="password" name="password" id="password" required minlength="8">
+                <small>Password must be at least 8 characters long</small>
             </div>
- 
-            <button type="submit" class="submit-btn">Send Reset Link</button>
+            
+            <div class="form-group">
+                <label for="confirm_password">Confirm New Password</label>
+                <input type="password" name="confirm_password" id="confirm_password" required minlength="8">
+            </div>
+            
+            <button type="submit" class="submit-btn">Reset Password</button>
             
             <div class="back-to-login">
                 <a href="/auth/login">Back to Login</a>
@@ -56,7 +65,7 @@ include __DIR__ . '/../layouts/header.php';
 </div>
 
 <style>
-    .forgot-password-container {
+    .reset-password-container {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -64,7 +73,7 @@ include __DIR__ . '/../layouts/header.php';
         padding: 20px;
     }
     
-    .forgot-password-box {
+    .reset-password-box {
         background: #fff;
         padding: 30px;
         border-radius: 8px;
@@ -73,19 +82,21 @@ include __DIR__ . '/../layouts/header.php';
         max-width: 450px;
     }
     
-    .forgot-password-box h1 {
+    .reset-password-box h1 {
         margin-top: 0;
         color: #333;
         font-size: 24px;
         margin-bottom: 10px;
     }
     
-    .forgot-password-box p {
+    .reset-password-box p {
         color: #666;
         margin-bottom: 25px;
     }
     
-    
+    .form-group {
+        margin-bottom: 20px;
+    }
     
     label {
         display: block;
@@ -94,12 +105,20 @@ include __DIR__ . '/../layouts/header.php';
         font-weight: 500;
     }
     
-    input {
+    input[type="password"] {
         width: 100%;
         padding: 10px;
         border: 1px solid #ddd;
         border-radius: 4px;
         font-size: 16px;
+        margin-bottom: 5px;
+    }
+    
+    small {
+        color: #666;
+        font-size: 12px;
+        display: block;
+        margin-top: 2px;
     }
     
     .submit-btn {
@@ -112,7 +131,6 @@ include __DIR__ . '/../layouts/header.php';
         font-size: 16px;
         cursor: pointer;
         margin-top: 10px;
-        transition: background-color 0.3s;
     }
     
     .submit-btn:hover {
@@ -125,7 +143,7 @@ include __DIR__ . '/../layouts/header.php';
     }
     
     .back-to-login a {
-        color: #007bff;
+        color: #4a6baf;
         text-decoration: none;
     }
     
@@ -134,66 +152,22 @@ include __DIR__ . '/../layouts/header.php';
     }
     
     .alert {
-        padding: 12px 15px;
+        padding: 10px 15px;
         border-radius: 4px;
         margin-bottom: 20px;
     }
     
     .error-message {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
+        background-color: #ffebee;
+        color: #c62828;
+        border: 1px solid #ffcdd2;
     }
     
     .success-message {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-    }
-    .container {
-        max-width: 600px;
-        margin: 50px auto;
-        padding: 20px;
-    }
-    
- 
-    
-    input {
-        width: 100%;
-        padding: 8px;
-        margin-top: 5px;
-    }
-    
-    button {
-        padding: 10px 20px;
-        background: #007bff;
-        color: white;
-        border: none;
-        cursor: pointer;
-        margin-top: 10px;
-    }
-    
-    .alert {
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
-    }
-    
-    .alert-danger {
-        background: #f8d7da;
-        color: #721c24;
-        border: 1px solid #f5c6cb;
-    }
-    
-    .alert-message {
-        background: #d4edda;
-        color: #155724;
-        border: 1px solid #c3e6cb;
-        padding: 10px;
-        margin: 10px 0;
-        border-radius: 4px;
+        background-color: #e8f5e9;
+        color: #2e7d32;
+        border: 1px solid #c8e6c9;
     }
 </style>
 
 <?php include __DIR__ . '/../layouts/footer.php'; ?>
-    

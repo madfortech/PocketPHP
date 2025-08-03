@@ -13,6 +13,9 @@ $router->addRoute('POST', '/auth/logout', 'PocketPHP\Controller\AuthController@l
 // Password Reset Routes
 $router->addRoute('GET', '/auth/forgot-password', 'PocketPHP\Controller\ForgetPasswordController@showForgotPasswordForm');
 $router->addRoute('POST', '/auth/forgot-password', 'PocketPHP\Controller\ForgetPasswordController@forgotPassword');
+$router->addRoute('GET', '/auth/reset-password', 'PocketPHP\Controller\ForgetPasswordController@showResetPasswordForm');
+$router->addRoute('GET', '/auth/reset-password/{token}', 'PocketPHP\Controller\ForgetPasswordController@showResetPasswordForm');
+$router->addRoute('POST', '/auth/reset-password', 'PocketPHP\Controller\ForgetPasswordController@resetPassword');
 
 // Email Verification Routes
 $router->addRoute('GET', '/email/verify', 'PocketPHP\Controller\VerificationController@showVerificationNotice');

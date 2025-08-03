@@ -17,25 +17,56 @@ class EmailService {
     }
 
     private function loadConfig() {
+        // Load environment variables from .env file if not already loaded
+        if (file_exists(dirname(__DIR__, 2) . '/.env')) {
+            $lines = file(dirname(__DIR__, 2) . '/.env', FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+            foreach ($lines as $line) {
+                if (strpos(trim($line), '#') === 0) continue; // Skip comments
+                
+                list($key, $value) = array_pad(explode('=', $line, 2), 2, null);
+                $key = trim($key);
+                $value = trim($value, "'\" \t\n\r\0\x0B");
+                
+                if ($key !== '' && $value !== null) {
+                    $_ENV[$key] = $value;
+                    $_SERVER[$key] = $value;
+                    putenv("$key=$value");
+                }
+            }
+        }
+
+        // Helper function to safely get env values
+        $getEnv = function($key, $default = '') {
+            // Check in this order: $_ENV, $_SERVER, getenv()
+            if (isset($_ENV[$key])) {
+                return $_ENV[$key];
+            } elseif (isset($_SERVER[$key])) {
+                return $_SERVER[$key];
+            }
+            $value = getenv($key);
+            return $value !== false ? $value : $default;
+        };
+
         // Load configuration from environment variables
         $this->config = [
-            'host' => 'sandbox.smtp.mailtrap.io',
-            'port' => 2525,
-            'username' => 'cc07721ae2f4af',
-            'password' => 'd55151300c4738',
-            'from_email' => 'from@example.com',
-            'from_name' => 'PocketPHP',
-            'debug' => true
+            'host' => $getEnv('MAIL_HOST'),
+            'port' => (int)$getEnv('MAIL_PORT', '2525'),
+            'username' => $getEnv('MAIL_USERNAME'),
+            'password' => $getEnv('MAIL_PASSWORD'),
+            'from_email' => $getEnv('MAIL_FROM_ADDRESS', 'noreply@example.com'),
+            'from_name' => $getEnv('MAIL_FROM_NAME', 'PocketPHP'),
+            'debug' => (bool)$getEnv('MAIL_DEBUG', '0')
         ];
         
-        // Override with .env values if they exist
-        if (getenv('MAIL_HOST')) $this->config['host'] = getenv('MAIL_HOST');
-        if (getenv('MAIL_PORT')) $this->config['port'] = (int)getenv('MAIL_PORT');
-        if (getenv('MAIL_USERNAME')) $this->config['username'] = getenv('MAIL_USERNAME');
-        if (getenv('MAIL_PASSWORD')) $this->config['password'] = getenv('MAIL_PASSWORD');
-        if (getenv('MAIL_FROM_ADDRESS')) $this->config['from_email'] = getenv('MAIL_FROM_ADDRESS');
-        if (getenv('MAIL_FROM_NAME')) $this->config['from_name'] = getenv('MAIL_FROM_NAME');
-        if (getenv('MAIL_DEBUG') !== false) $this->config['debug'] = (bool)getenv('MAIL_DEBUG');
+        // Validate required configuration
+        if (empty($this->config['host']) || empty($this->config['username']) || empty($this->config['password'])) {
+            throw new \Exception('Email configuration is incomplete. Please check your .env file for MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD.');
+        }
+
+        // Ensure no null values
+        $this->config = array_map(function($value) {
+            return $value === null ? '' : $value;
+        }, $this->config);
         
         // Debug: Log the SMTP configuration (remove in production)
         error_log('SMTP Config: ' . print_r([
@@ -48,33 +79,37 @@ class EmailService {
 
     private function configure() {
         try {
+            // Validate required configuration
+            if (empty($this->config['host']) || empty($this->config['username']) || empty($this->config['password'])) {
+                throw new \Exception('Incomplete email configuration. Please check your .env file for MAIL_HOST, MAIL_USERNAME, and MAIL_PASSWORD.');
+            }
+
             // Server settings
-            $this->mailer->SMTPDebug = SMTP::DEBUG_OFF; // Disable debug output
+            $this->mailer->SMTPDebug = !empty($this->config['debug']) ? SMTP::DEBUG_SERVER : SMTP::DEBUG_OFF;
             
-            // Only log errors to error log, don't display to user
+            // Debug output handler
             $this->mailer->Debugoutput = function($str, $level) {
                 if ($level >= SMTP::DEBUG_SERVER) {
                     error_log("PHPMailer ($level): $str");
                 }
             };
+
+            // Basic SMTP configuration
             $this->mailer->isSMTP();
-            $this->mailer->Host = $this->config['host'];
+            $this->mailer->Host = (string)$this->config['host'];
             $this->mailer->SMTPAuth = true;
-            $this->mailer->Username = $this->config['username'];
-            $this->mailer->Password = $this->config['password'];
+            $this->mailer->Username = (string)$this->config['username'];
+            $this->mailer->Password = (string)$this->config['password'];
             $this->mailer->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
-            $this->mailer->Port = $this->config['port'];
+            $this->mailer->Port = (int)$this->config['port'];
             $this->mailer->CharSet = 'UTF-8';
+            $this->mailer->Encoding = 'base64';
             
-            // Debug output
-            $this->mailer->Debugoutput = function($str, $level) {
-                error_log("PHPMailer ($level): $str");
-            };
+            // Set From address with fallback
+            $fromEmail = !empty($this->config['from_email']) ? $this->config['from_email'] : 'noreply@' . (isset($_SERVER['HTTP_HOST']) ? $_SERVER['HTTP_HOST'] : 'example.com');
+            $this->mailer->setFrom($fromEmail, (string)$this->config['from_name']);
             
-            // From
-            $this->mailer->setFrom($this->config['from_email'], $this->config['from_name']);
-            
-            // For Mailtrap, disable TLS certificate verification
+            // SMTP options for development
             $this->mailer->SMTPOptions = [
                 'ssl' => [
                     'verify_peer' => false,
@@ -83,9 +118,16 @@ class EmailService {
                 ]
             ];
             
-        } catch (Exception $e) {
-            error_log("Mailer Configuration Error: " . $e->getMessage());
-            throw new \Exception("Email configuration failed: " . $e->getMessage());
+            // Test connection
+            if (!$this->mailer->smtpConnect()) {
+                throw new \Exception('SMTP connection failed');
+            }
+            $this->mailer->smtpClose();
+            
+        } catch (\Exception $e) {
+            $error = "Mailer Configuration Error: " . $e->getMessage();
+            error_log($error);
+            throw new \Exception($error);
         }
     }
 
@@ -100,12 +142,13 @@ class EmailService {
             
             // Content
             $this->mailer->isHTML(true);
-            $this->mailer->Subject = 'Verify Your Email Address';
+            $subject = 'Verify Your Email Address';
+            $this->mailer->Subject = $subject ?? '';
             
             // Email template
             $emailContent = $this->getVerificationEmailTemplate($toName, $verificationUrl);
-            $this->mailer->Body = $emailContent;
-            $this->mailer->AltBody = strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $emailContent));
+            $this->mailer->Body = $emailContent ?? '';
+            $this->mailer->AltBody = $emailContent ? strip_tags(str_replace(['<br>', '<br/>', '<br />'], "\n", $emailContent)) : '';
             
             // Log the email being sent
             error_log("Sending verification email to: " . $toEmail);

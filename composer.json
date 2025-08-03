@@ -1,8 +1,8 @@
 {
     "name": "pocketphp/pocketphp",
-    "description": "A lightweight and powerful PHP framework for building web applications for small scale projects on shared hosting",
+    "description": "A lightweight and powerful PHP boilerplate for building web applications for small scale projects on shared hosting",
     "type": "project",
-    "keywords": ["php", "framework", "mvc", "pocketphp", "php-framework", "web-development"],
+    "keywords": ["php", "boilerplate", "mvc", "pocketphp", "php-boilerplate", "web-development"],
     "version": "1.0.0-dev",
     "authors": [{
         "name": "Himanshu Nishad",
@@ -13,6 +13,12 @@
     "require": {
         "php": "^8.2",
         "phpmailer/phpmailer": "^6.8",
+        "pocketphp/pocket-error-log": "1.0.0-dev",
+        "pocketphp/pocket-session": "1.0.0-dev",
+        "pocketphp/pocketcookies": "1.0.0-dev",
+        "pocketphp/pocketdatabase": "1.0.0-dev",
+        "pocketphp/pockethashing": "1.0.0-dev",
+        "pocketphp/pocketsecurity": "1.0.0-dev",
         "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
@@ -46,5 +52,31 @@
         "branch-alias": {
             "dev-main": "1.0.x-dev"
         }
-    }
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketErrorLog.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketDatabase.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketHashing.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketSession.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketCookies.git"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/madfortech/PocketSecurity.git"
+        }
+    ]
 }
