@@ -2,6 +2,7 @@
 namespace PocketPHP\Model;
 
 use PocketPHP\Core\Database;
+use PocketHashing\PasswordHasher;   
 
 class User {
 
@@ -29,13 +30,13 @@ class User {
     }
 
     public function create($name, $email, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = PasswordHasher::hash($password);
         $stmt = $this->db->prepare("INSERT INTO users (name, email, password) VALUES (?, ?, ?)");
         return $stmt->execute([$name, $email, $hashedPassword]);
     }
 
     public function update($id, $name, $email, $password) {
-        $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        $hashedPassword = PasswordHasher::hash($password);
         $stmt = $this->db->prepare("UPDATE users SET name = ?, email = ?, password = ? WHERE id = ?");
         return $stmt->execute([$name, $email, $hashedPassword, $id]);
     }
@@ -56,5 +57,36 @@ class User {
         $result = $stmt->fetch(\PDO::FETCH_OBJ);
         return !empty($result->email_verified_at);
     }
+    
+    /**
+     * Update user's password
+     * 
+     * @param string $email User's email
+     * @param string $password New password (plain text)
+     * @return bool True on success, false on failure
+     */
+    public function updatePassword($email, $password) {
+        $hashedPassword = PasswordHasher::hash($password);
+        $stmt = $this->db->prepare("UPDATE users SET password = ?, updated_at = NOW() WHERE email = ?");
+        return $stmt->execute([$hashedPassword, $email]);
+    }
 
+
+    // Verify password
+    public function verifyPassword($email, $password) {
+        $user = $this->findByEmail($email);
+        
+        if (!$user) {
+            return false;
+        }
+        
+        $isValid = PasswordHasher::verify($password, $user->password);
+        
+        // Check if password needs rehashing (for upgraded security)
+        if ($isValid && PasswordHasher::needsRehash($user->password)) {
+            $this->update($user->id, $user->name, $user->email, $password);
+        }
+        
+        return $isValid;
+    }
 }

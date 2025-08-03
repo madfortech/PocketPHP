@@ -3,3 +3,14 @@ vendor
 
 # Ignore composer files
 composer.lock
+
+composer.phar
+composer.phar.phar
+
+/storage/logs
+
+# Development environment files
+.env
+
+.idea/
+.vscode/

@@ -1,4 +1,32 @@
-<?php include __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+// Start session if not already started
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+use PocketSecurity\Security;
+use PocketErrorLog\ErrorLog;
+
+// Generate CSRF token if not exists
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = Security::csrfGenerate();
+}
+
+// Debug: Log the generated token and session info
+ErrorLog::log('=== LOGIN PAGE LOADED ===');
+ErrorLog::log('Session ID: ' . session_id());
+ErrorLog::log('CSRF Token in session: ' . ($_SESSION['csrf_token'] ?? 'NOT SET'));
+ErrorLog::log('Session data: ' . print_r($_SESSION, true));
+
+// Ensure we have a valid token
+if (empty($_SESSION['csrf_token']) || strlen($_SESSION['csrf_token']) !== 64) {
+    ErrorLog::log('Generating new CSRF token');
+    $_SESSION['csrf_token'] = Security::csrfGenerate();
+}
+
+include __DIR__ . '/../layouts/header.php'; 
+?>
 
 <div class="container">
     <div class="message">
@@ -24,6 +52,9 @@
         <?php endif; ?>
         
         <form action="/auth/login" method="POST">
+            <!-- CSRF Token -->
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>">
+            
             <div>
                 <label for="email">Email</label>
                 <input type="email" name="email" id="email" required>
@@ -36,6 +67,11 @@
 
             <div style="margin-top: 10px;">
                 <a href="/auth/forgot-password">Forgot Password?</a>
+            </div>
+
+            <div style="margin-top: 10px;">
+                <input type="checkbox" name="remember_me" id="remember_me">
+                <label for="remember_me">Remember me</label>
             </div>
                 
             
