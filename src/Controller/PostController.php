@@ -2,12 +2,18 @@
 namespace PocketPHP\Controller;
 
 use PocketPHP\Model\Post;
+use PostOwner\Owner;
 
 class PostController {
     
     private $postModel;
 
     public function __construct() {
+
+        // SESSION MUST START
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
         $this->postModel = new Post();
     }
 
@@ -35,11 +41,18 @@ class PostController {
 
     // Store Post
     public function store() {
+
+        // ADD USER ID WHEN CREATING POST
         $title = $_POST['title'] ?? '';
         $body = $_POST['body'] ?? '';
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if ($userId === null) {
+            die("Login required.");
+        }
         
         if (!empty($title) && !empty($body)) {
-            $this->postModel->create($title, $body);
+            $this->postModel->create($title, $body, $userId);
             header('Location: /posts');
             exit();
         }
@@ -58,6 +71,11 @@ class PostController {
             header('Location: /posts');
             exit();
         }
+
+        // OWNER CHECK
+        if (!Owner::checkOwner($post->user_id, $_SESSION['user_id'] ?? null)) {
+            die("You are not allowed to edit this post.");
+        }
         
         // Debug: Check if the edit.php file exists
         $editTemplate = __DIR__.'/../../templates/posts/edit.php';
@@ -71,6 +89,14 @@ class PostController {
 
     // Update Post
     public function update($id) {
+
+        $post = $this->postModel->find($id);
+
+        // If you're not the owner → stop
+        if (!Owner::checkOwner($post->user_id, $_SESSION['user_id'] ?? null)) {
+            die("Unauthorized action.");
+        }
+
         $title = $_POST['title'] ?? '';
         $body = $_POST['body'] ?? '';
         
@@ -87,6 +113,16 @@ class PostController {
 
     // Delete Post
     public function destroy($id) {
+
+        $post = $this->postModel->find($id);
+
+        if (!$post) {
+            die("Post not found.");
+        }
+
+        if (!Owner::checkOwner($post->user_id, $_SESSION['user_id'] ?? null)) {
+            die("You cannot delete this post.");
+        }
         $post = $this->postModel->delete($id);
         header('Location: /posts');
     }

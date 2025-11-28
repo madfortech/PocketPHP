@@ -1,4 +1,8 @@
-<?php include __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+    include __DIR__ . '/../layouts/header.php';
+    use PostOwner\Owner;
+    $currentUserId = $_SESSION['user_id'] ?? null;
+?>
 
 <div class="container">
     <?php if (isset($post) && $post): ?>
@@ -12,11 +16,14 @@
             </div>
             <div class="post-actions" style="margin-top: 20px;">
                 <a href="/posts" class="btn">Back to Posts</a>
-                <a href="/posts/<?php echo $post->id; ?>/edit" class="edit-btn">Edit</a>
-                <form action="/posts/<?php echo $post->id; ?>" method="POST" style="display: inline-block;">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
-                </form>
+
+                <?php if (Owner::checkOwner($post->user_id, $currentUserId)): ?>
+                    <a href="/posts/<?php echo $post->id; ?>/edit" class="edit-btn">Edit</a>
+                    <form action="/posts/<?php echo $post->id; ?>" method="POST" style="display: inline-block;">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <button type="submit" class="delete-btn" onclick="return confirm('Are you sure you want to delete this post?')">Delete</button>
+                    </form>
+                <?php endif; ?>
             </div>
         </article>
     <?php else: ?>

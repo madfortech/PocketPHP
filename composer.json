@@ -14,11 +14,10 @@
         "php": "^8.2",
         "phpmailer/phpmailer": "^6.8",
         "pocketphp/pocket-error-log": "1.0.0-dev",
-        "pocketphp/pocket-session": "1.0.0-dev",
         "pocketphp/pocketcookies": "1.0.0-dev",
-        "pocketphp/pocketdatabase": "1.0.0-dev",
         "pocketphp/pockethashing": "1.0.0-dev",
         "pocketphp/pocketsecurity": "1.0.0-dev",
+        "pocketphp/post-owner": "1.0.0-dev",
         "vlucas/phpdotenv": "^5.6"
     },
     "autoload": {
@@ -54,29 +53,12 @@
         }
     },
     "repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketErrorLog.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketDatabase.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketHashing.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketSession.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketCookies.git"
-        },
-        {
-            "type": "vcs",
-            "url": "https://github.com/madfortech/PocketSecurity.git"
-        }
+         
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PocketErrorLog" },
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PocketCookies" },
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PocketSecurity" },
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PocketHashing" },
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PostOwner"},
+        { "type": "path", "url": "C:\\xampp\\htdocs\\PocketTesting"}
     ]
 }

@@ -1,5 +1,5 @@
 # Ignore vendor directory
-vendor
+vendor/
 
 # Ignore composer files
 composer.lock
@@ -7,10 +7,14 @@ composer.lock
 composer.phar
 composer.phar.phar
 
-/storage/logs
+#Logs
+storage/logs/
+*.log
 
 # Development environment files
 .env
+.env.*
+*.env
 
 .idea/
 .vscode/

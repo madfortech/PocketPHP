@@ -17,9 +17,9 @@ class Post {
     }
 
     // INSERT INTO posts (title, body) VALUES (?, ?)
-    public function create($title, $body) {
-        $stmt = $this->db->prepare("INSERT INTO posts (title, body) VALUES (?, ?)");
-        return $stmt->execute([$title, $body]);
+    public function create($title, $body, $userId) {
+        $stmt = $this->db->prepare("INSERT INTO posts (title, body, user_id) VALUES (?, ?,?)");
+        return $stmt->execute([$title, $body, $userId]);
     }
 
     // SELECT * FROM posts WHERE id = ?

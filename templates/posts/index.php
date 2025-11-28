@@ -1,4 +1,10 @@
-<?php include __DIR__ . '/../layouts/header.php'; ?>
+<?php 
+
+    include __DIR__ . '/../layouts/header.php'; 
+    use PostOwner\Owner;
+    $currentUserId = $_SESSION['user_id'] ?? null;
+
+?>
 
 <style>
     .container {
@@ -12,7 +18,6 @@
 
     .item{
         max-width: 100%;
-        background-color: #fff;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
@@ -59,7 +64,7 @@
                 </li>
             </ul>
         <?php endforeach; ?>
-        <a href="/">Home</a>
+       
     </div>
 
     <div class="item">
@@ -76,14 +81,25 @@
                         <?php echo nl2br(htmlspecialchars($post->body)); ?>
                     </div>
                     <div class="post-actions" style="margin-top: 10px;">
-                        <a href="/posts/<?php echo $post->id; ?>/edit" class="edit-btn" style="background-color: #4CAF50; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; margin-right: 5px;">Edit</a>
-                        <form action="/posts/<?php echo $post->id; ?>" method="POST" style="display: inline-block;">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="delete-btn" style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" 
-                                    onclick="return confirm('Are you sure you want to delete this post?')">
-                                Delete
-                            </button>
-                        </form>
+                       <?php if (Owner::checkOwner($post->user_id, $currentUserId)): ?>
+
+                         
+                            <a href="/posts/<?php echo $post->id; ?>/edit" 
+                                class="edit-btn"
+                                style="background-color: #4CAF50; color: white; padding: 5px 10px; text-decoration: none; border-radius: 3px; margin-right: 5px;">
+                                Edit
+                            </a>
+
+                            <form action="/posts/<?php echo $post->id; ?>" method="POST" style="display: inline-block;">
+                                <input type="hidden" name="_method" value="DELETE">
+                                <button type="submit" class="delete-btn" style="background-color: #f44336; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;" 
+                                        onclick="return confirm('Are you sure you want to delete this post?')">
+                                    Delete
+                                </button>
+                            </form>
+                        
+                        <?php endif; ?>
+
                     </div>
             </article>
         <?php endforeach; ?>

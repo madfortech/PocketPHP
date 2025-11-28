@@ -1,4 +1,7 @@
 <?php
+
+session_start();
+
 require __DIR__.'/../vendor/autoload.php';
 // Set the log path to your project's storage directory
 use PocketErrorLog\ErrorLog;
